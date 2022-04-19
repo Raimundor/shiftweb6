@@ -9,7 +9,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.com.fiap.shiftweb6.model.CategoriaModel;
 import br.com.fiap.shiftweb6.model.LojaModel;
+import br.com.fiap.shiftweb6.model.ProdutoModel;
+import br.com.fiap.shiftweb6.model.mixin.CategoriaModelMixin;
+import br.com.fiap.shiftweb6.model.mixin.LojasMixin;
+import br.com.fiap.shiftweb6.model.mixin.MarcaModelMixin;
+import br.com.fiap.shiftweb6.model.mixin.ProdutosMixin;
 import br.com.fiap.shiftweb6.repository.LojaRepository;
 
 @RestController
@@ -19,12 +30,18 @@ public class LojaController {
 	LojaRepository lojaRepository;
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<LojaModel> findById(@PathVariable("id") Long id) {
+	public ResponseEntity<JsonNode> findById(@PathVariable("id") Long id) throws JsonMappingException, JsonProcessingException {
 		LojaModel lojaModel = lojaRepository.findById(id).orElse(null);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.addMixIn(ProdutoModel.class, LojasMixin.class);
+		mapper.addMixIn(ProdutoModel.class, MarcaModelMixin.class);
+		mapper.addMixIn(ProdutoModel.class, CategoriaModelMixin.class);
+		
 		if (null == lojaModel) {
 			return ResponseEntity.notFound().build();
 		} else {
-			return ResponseEntity.ok(lojaModel); // problema
+			return ResponseEntity.ok(mapper.readTree(mapper.writeValueAsString(lojaModel))); // problema
 		}
 	}
 

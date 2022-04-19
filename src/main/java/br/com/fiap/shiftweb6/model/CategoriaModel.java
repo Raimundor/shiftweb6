@@ -1,10 +1,14 @@
 package br.com.fiap.shiftweb6.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -21,7 +25,20 @@ public class CategoriaModel {
 	@Column(name = "ATIVO")
 	private Boolean ativo;
 	
+	@OneToMany(mappedBy = "categoriaModel", fetch = FetchType.LAZY)
+	private List<ProdutoModel> produtos;
 	
+	
+	public List<ProdutoModel> getProdutos() {
+		return produtos;
+	}
+
+
+	public void setProdutos(List<ProdutoModel> produtos) {
+		this.produtos = produtos;
+	}
+
+
 	public CategoriaModel() {
 		super();
 	}
